@@ -1,0 +1,73 @@
+@startuml
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam sequence {
+    ArrowColor #007ACC
+    ActorBorderColor #007ACC
+    LifeLineBorderColor #007ACC
+    ParticipantBorderColor #007ACC
+    ParticipantBackgroundColor white
+}
+
+actor User
+participant "Client App" as Client
+participant "Amazon Cognito" as Cognito
+participant "Identity Pool" as IdPool
+participant "AWS Services" as AWS
+
+== User Authentication ==
+
+User -> Client: Enter credentials
+activate Client
+
+Client -> Cognito: InitiateAuth request
+activate Cognito
+
+alt #LightGreen Successful authentication
+    Cognito --> Client: Return tokens\n(ID, Access, Refresh)
+    Client -> Client: Store tokens securely
+    
+    Client -> IdPool: Get temporary AWS credentials\n(using Cognito tokens)
+    activate IdPool
+    IdPool --> Client: Return AWS credentials
+    deactivate IdPool
+    
+    Client -> AWS: Access AWS services\n(using temporary credentials)
+    activate AWS
+    AWS --> Client: Service response
+    deactivate AWS
+
+else #Pink Authentication challenge required
+    Cognito --> Client: Return challenge
+    Client -> User: Request additional info\n(MFA, new password, etc.)
+    User -> Client: Provide challenge response
+    Client -> Cognito: RespondToAuthChallenge
+    Cognito --> Client: Return tokens
+
+else #Pink Invalid credentials
+    Cognito --> Client: Authentication failed
+    Client -> User: Show error message
+end
+
+deactivate Cognito
+deactivate Client
+
+== Token Refresh ==
+
+User -> Client: Access protected resource
+activate Client
+
+alt #LightBlue Access token expired
+    Client -> Cognito: Refresh tokens
+    activate Cognito
+    Cognito --> Client: New access token
+    deactivate Cognito
+end
+
+Client -> AWS: Access AWS services
+activate AWS
+AWS --> Client: Service response
+deactivate AWS
+deactivate Client
+
+@enduml

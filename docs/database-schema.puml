@@ -1,0 +1,102 @@
+@startuml
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <u>x</u>
+!define foreign_key(x) <i>x</i>
+hide methods
+hide stereotypes
+
+skinparam class {
+    BackgroundColor White
+    ArrowColor #2688d4
+    BorderColor #2688d4
+}
+
+table(Users) {
+    primary_key(id): UUID
+    cognito_id: VARCHAR(255)
+    email: VARCHAR(255)
+    first_name: VARCHAR(100)
+    last_name: VARCHAR(100)
+    profile_image_url: VARCHAR(255)
+    bio: TEXT
+    created_at: TIMESTAMP
+    updated_at: TIMESTAMP
+}
+
+table(Projects) {
+    primary_key(id): UUID
+    foreign_key(user_id): UUID
+    title: VARCHAR(255)
+    description: TEXT
+    image_url: VARCHAR(255)
+    project_url: VARCHAR(255)
+    github_url: VARCHAR(255)
+    technologies: TEXT[]
+    start_date: DATE
+    end_date: DATE
+    is_featured: BOOLEAN
+    created_at: TIMESTAMP
+    updated_at: TIMESTAMP
+}
+
+table(Skills) {
+    primary_key(id): UUID
+    foreign_key(user_id): UUID
+    name: VARCHAR(100)
+    category: VARCHAR(50)
+    proficiency_level: INTEGER
+    icon_url: VARCHAR(255)
+    created_at: TIMESTAMP
+    updated_at: TIMESTAMP
+}
+
+table(Experiences) {
+    primary_key(id): UUID
+    foreign_key(user_id): UUID
+    company_name: VARCHAR(255)
+    position: VARCHAR(255)
+    description: TEXT
+    start_date: DATE
+    end_date: DATE
+    is_current: BOOLEAN
+    company_logo_url: VARCHAR(255)
+    location: VARCHAR(255)
+    created_at: TIMESTAMP
+    updated_at: TIMESTAMP
+}
+
+table(ContactMessages) {
+    primary_key(id): UUID
+    name: VARCHAR(255)
+    email: VARCHAR(255)
+    subject: VARCHAR(255)
+    message: TEXT
+    status: VARCHAR(50)
+    created_at: TIMESTAMP
+    updated_at: TIMESTAMP
+}
+
+table(ProjectTags) {
+    primary_key(id): UUID
+    foreign_key(project_id): UUID
+    name: VARCHAR(100)
+    created_at: TIMESTAMP
+}
+
+table(SocialLinks) {
+    primary_key(id): UUID
+    foreign_key(user_id): UUID
+    platform: VARCHAR(50)
+    url: VARCHAR(255)
+    icon: VARCHAR(100)
+    created_at: TIMESTAMP
+    updated_at: TIMESTAMP
+}
+
+Users ||--o{ Projects
+Users ||--o{ Skills
+Users ||--o{ Experiences
+Users ||--o{ SocialLinks
+Projects ||--o{ ProjectTags
+
+@enduml
